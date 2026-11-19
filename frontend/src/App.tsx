@@ -51,8 +51,8 @@ export default function App() {
       <header>
         <h1>需求 / 工单分诊 Agent</h1>
         <p className="sub">
-          MVP 骨架：当前为 <strong>mock 分诊</strong>（规则命中，未接大模型），用于跑通前后端与展示链路。
-          下一步接 LangChain Tool Calling（课程第 5、6 节）。
+          已接 DeepSeek（deepseek-chat）Tool Calling：模型自主调用分类、检索、验收清单、指派 4
+          个工具后给出结构化分诊结果（课程第 5、6、15 节）。未配 Key 时自动回退 mock。
         </p>
       </header>
 
@@ -125,6 +125,12 @@ export default function App() {
                 {selected.result.source}
                 {selected.result.truncated ? "（文本过长已截断）" : ""}
               </p>
+              {selected.result.toolCalls && selected.result.toolCalls.length > 0 && (
+                <p>
+                  <strong>调用的工具：</strong>
+                  {selected.result.toolCalls.join(" → ")}
+                </p>
+              )}
               <p className="muted">原文：{selected.input}</p>
               <h3>处理步骤</h3>
               <ol>

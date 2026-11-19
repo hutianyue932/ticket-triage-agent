@@ -8,7 +8,8 @@
 
 1. 能用 React 写出可用的前端（补 React 能力，之前只有一页经验）。
 2. 能用 Node.js + TypeScript 独立交付后端接口。
-3. 真的动手做过 Agent 链路：工具定义 → 调用 → 结构化输出 → 知识库检索（先 mock，下一步接 LangChain）。
+3. 真的动手做过 Agent 链路：工具定义 → 调用 → 结构化输出 → 知识库检索（已接 DeepSeek
+   Function Calling，见 `backend/src/agent.ts`）。
 
 ## 范围（MVP 做什么 / 不做什么）
 
@@ -18,8 +19,7 @@
 - 本地知识库 15 条虚构工单，关键词检索。
 - 工具定义 4 个（分类、检索、验收清单、指派），留 LangChain 接入点。
 
-不做（MVP 之后，按课程章节再加）：
-- 不接真实大模型 API（下一步，课程第 5、6 节）。
+不做（之后，按课程章节再加）：
 - 不做向量 RAG / Milvus（课程第 9–13 节）。
 - 不做 SSE 流式（课程第 21、63 节）。
 - 不做 MCP / LangGraph / Docker / RBAC / 鉴权。
@@ -35,9 +35,10 @@
 | 4 | 后端：`POST /api/triage` | 入参 `{ text }`，出参 `{ category, priority, assignee, checklist, relatedDocs, steps }`，空文本返回 400 |
 | 5 | 后端：mock 分诊规则可解释 | 关键词命中逻辑写在 `triage.ts`，有注释，不伪装成大模型结果；响应里 `source: "mock"` |
 | 6 | 知识库：关键词检索 | `data/tickets.json` 15 条，命中按关键词重叠度排序，最多返回 3 条 |
-| 7 | 工具占位 | `tools.ts` 有 4 个工具的 schema + 本地实现，`agent.ts` 的 `runAgent()` 标 TODO（接 LangChain） |
+| 7 | 工具调用 | `tools.ts` 有 4 个工具的 schema + 本地实现；`agent.ts` 把 4 个工具交给 DeepSeek 自主调用（Function Calling，课程第 5、6 节），`toolCalls` 记录实际调用 |
 | 8 | 可构建、可运行 | 前后端 `npm run build` 通过；`npm run dev` 都能跑；README 的命令能照抄跑通 |
 | 9 | 干净提交 | 不含 `node_modules/`、`.env`、API Key；有 `.gitignore`、`.env.example` |
+| 10 | 真实分诊 | 配了 Key 时返回 `source: "llm"` 且 `toolCalls` 非空；未配 Key 时返回 `source: "mock"`；调用失败回退 mock，不伪装 |
 
 ## 边界与异常分支
 

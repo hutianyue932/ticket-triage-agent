@@ -18,6 +18,8 @@ export interface TriageResult {
   steps: string[];
   summary: string;
   truncated: boolean;
+  /** 模型实际调用过的工具名（按调用顺序去重），mock 模式下为空。 */
+  toolCalls?: string[];
 }
 
 export const CATEGORY_LABEL: Record<Category, string> = {

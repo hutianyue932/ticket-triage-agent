@@ -19,9 +19,9 @@
 - ✅ 前端：Vite + React + TypeScript，输入框、提交、分诊结果列表、详情面板
 - ✅ 后端：Node.js + TypeScript + Express，`POST /api/triage`，mock 分诊逻辑占位
 - ✅ 知识库：`data/tickets.json`，15 条虚构通用工单，简单关键词检索占位（不是真实公司数据）
-- ✅ Tool Calling 占位：`backend/src/tools.ts` 定义了 4 个工具的 schema 与本地实现，留好接 LangChain 的位置
-- ✅ OpenSpec 风格的需求拆解与验收清单：`docs/openspec.md`
-- ❌ 未做：接真实大模型 API、LangChain Tool Calling、RAG 向量检索、SSE 流式、MCP、LangGraph、Docker、RBAC、鉴权
+- ✅ 已接真实大模型：DeepSeek（deepseek-chat）Function Calling，`backend/src/agent.ts`，
+  模型自主调用 tools.ts 的 4 个工具，结构化输出分诊结果；未配 Key 时回退 mock
+- ❌ 未做：RAG 向量检索、SSE 流式、MCP、LangGraph、Docker、RBAC、鉴权
 
 ## 怎么跑（本地）
 
@@ -45,19 +45,22 @@ npm run dev
 
 ## 环境变量
 
-后端不强制要求 API Key（MVP 用 mock，不调大模型）。后续接大模型时复制：
+后端默认用 mock（不配 Key）。接 DeepSeek 时复制：
 
 ```bash
 cp backend/.env.example backend/.env
-# 填 LLM_API_KEY、LLM_BASE_URL、LLM_MODEL，不要提交 .env
+# 填 LLM_API_KEY、LLM_BASE_URL（默认 https://api.deepseek.com）、LLM_MODEL（默认 deepseek-chat），不要提交 .env
 ```
+
+配了 Key 后 `POST /api/triage` 返回 `source: "llm"`，并在 `toolCalls` 里列出模型实际调过的工具名；
+未配 Key 或调用失败时回退 mock，返回 `source: "mock"`，不伪装成大模型结果。
 
 ## 后续要加的（按课程章节）
 
 | 下一步 | 课程章节 | 说明 |
 |---|---|---|
-| 接大模型 API + LangChain Tool Calling，替换 mock | 第 5、6 节（Tool / mini cursor） | `backend/src/agent.ts` 预留了 `runAgent()` 入口，见 TODO |
-| 结构化输出分诊结果 | 第 15、16 节（output parser） | 用 parser 替代现在的规则 + JSON 拼装 |
+| 接大模型 API + Tool Calling，替换 mock | 第 5、6 节（Tool / mini cursor） | ✅ 已完成：DeepSeek 原生 Function Calling（与 LangChain bindTools() 等价链路，未引入 LangChain 依赖），见 `backend/src/agent.ts` |
+| 结构化输出分诊结果 | 第 15、16 节（output parser） | ✅ 已完成：模型只输出 JSON，服务端校验字段后拼成 TriageResult（未引入 parser 库，先用 JSON 提取 + 校验） |
 | Prompt 与链路组装 | 第 17、18、19 节（Prompt Template / Runnable / LCEL） | 把分诊拆成 prompt → tools → parser 的 chain |
 | 真正的 RAG | 第 9、10、11 节（RAG / loader / splitter），再看第 12、13 节（Milvus） | 先做文档切分 + 关键词检索，再上向量库 |
 | SSE 流式 | 第 21 节（Nest + LangChain SSE），第 63 节（SSE 流式 UI） | 后端先出 SSE，前端再做流式渲染 |
