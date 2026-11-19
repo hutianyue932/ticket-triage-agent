@@ -1,0 +1,1 @@
+{"description":"需求 / 工单分诊 Agent Demo MVP：React + Node.js + TypeScript","name":"ticket-triage-agent","private":true,"scripts":{"build":"npm --prefix backend run build && npm --prefix frontend run build","dev:backend":"npm --prefix backend run dev","dev:frontend":"npm --prefix frontend run dev"},"version":"0.1.0"}
